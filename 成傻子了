@@ -1,0 +1,302 @@
+local screenGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("DrawMeGui") or Instance.new("ScreenGui")
+screenGui.Name = "DrawMeGui"
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- ===== 垃圾脚本标签 =====
+local trashLabel = Instance.new("TextLabel")
+trashLabel.Text = "⚠️ 垃圾脚本"
+trashLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+trashLabel.Size = UDim2.new(0, 120, 0, 25)
+trashLabel.Position = UDim2.new(0, 10, 0, 5)
+trashLabel.BackgroundTransparency = 1
+trashLabel.Font = Enum.Font.GothamBlack
+trashLabel.TextSize = 16
+trashLabel.TextStrokeTransparency = 0.5
+trashLabel.ZIndex = 10
+trashLabel.Parent = screenGui
+
+-- ===== 主控制面板 =====
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+mainFrame.BorderSizePixel = 2
+mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 100)
+mainFrame.Active = true
+mainFrame.Selectable = true
+mainFrame.Parent = screenGui
+
+-- ===== 标题栏（拖动区域） =====
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.Position = UDim2.new(0, 0, 0, 0)
+titleBar.BackgroundTransparency = 1
+titleBar.Active = true
+titleBar.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Text = "《画我脚本》作者CUT"
+title.TextColor3 = Color3.fromRGB(255, 215, 0)
+title.Size = UDim2.new(1, 0, 1, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 22
+title.TextStrokeTransparency = 0.5
+title.Parent = titleBar
+
+-- ===== 关闭按钮 =====
+local closeButton = Instance.new("TextButton")
+closeButton.Text = "× 关闭"
+closeButton.Size = UDim2.new(0, 60, 0, 25)
+closeButton.Position = UDim2.new(1, -65, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.TextSize = 16
+closeButton.ZIndex = 20
+closeButton.Parent = mainFrame
+-- 补全关闭按钮功能：点击销毁UI
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- ===== 主面板拖动功能 =====
+local dragging, dragInput, dragStart, startPos
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+                connection:Disconnect()
+            end
+        end)
+    end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and (input == dragInput) then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- ===== 卡密验证界面 =====
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 280, 0, 150)
+keyFrame.Position = UDim2.new(0.5, -140, 0.2, -75)
+keyFrame.BackgroundTransparency = 1
+keyFrame.Parent = mainFrame
+
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Text = " 请输入卡密"
+keyTitle.TextColor3 = Color3.new(1, 1, 1)
+keyTitle.Size = UDim2.new(1, 0, 0, 30)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Font = Enum.Font.GothamBold
+keyTitle.TextSize = 20
+keyTitle.Parent = keyFrame
+
+local inputBox = Instance.new("TextBox")
+inputBox.PlaceholderText = "输入卡密"
+inputBox.Size = UDim2.new(0.8, 0, 0, 35)
+inputBox.Position = UDim2.new(0.1, 0, 0.3, -17)
+inputBox.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+inputBox.TextColor3 = Color3.new(1, 1, 1)
+inputBox.Font = Enum.Font.Gotham
+inputBox.TextSize = 16
+inputBox.Parent = keyFrame
+
+local submitButton = Instance.new("TextButton")
+submitButton.Text = "验证卡密"
+submitButton.Size = UDim2.new(0.6, 0, 0, 35)
+submitButton.Position = UDim2.new(0.2, 0, 0.7, -17)
+submitButton.BackgroundColor3 = Color3.fromRGB(80, 160, 240)
+submitButton.Font = Enum.Font.GothamBold
+submitButton.TextColor3 = Color3.new(1, 1, 1)
+submitButton.TextSize = 16
+submitButton.Parent = keyFrame
+
+-- ===== 图片ID输入界面 =====
+local imageIdFrame = Instance.new("Frame")
+imageIdFrame.Size = UDim2.new(0, 280, 0, 180)
+imageIdFrame.Position = UDim2.new(0.5, -140, 0.2, -90)
+imageIdFrame.BackgroundTransparency = 1
+imageIdFrame.Visible = false
+imageIdFrame.Parent = mainFrame
+
+local imageIdTitle = Instance.new("TextLabel")
+imageIdTitle.Text = "️ 请输入图片ID"
+imageIdTitle.TextColor3 = Color3.new(1, 1, 1)
+imageIdTitle.Size = UDim2.new(1, 0, 0, 30)
+imageIdTitle.BackgroundTransparency = 1
+imageIdTitle.Font = Enum.Font.GothamBold
+imageIdTitle.TextSize = 20
+imageIdTitle.Parent = imageIdFrame
+
+local imageIdBox = Instance.new("TextBox")
+imageIdBox.PlaceholderText = "例如: 123456789"
+imageIdBox.Size = UDim2.new(0.8, 0, 0, 35)
+imageIdBox.Position = UDim2.new(0.1, 0, 0.3, -17)
+imageIdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+imageIdBox.TextColor3 = Color3.new(1, 1, 1)
+imageIdBox.Font = Enum.Font.Gotham
+imageIdBox.TextSize = 16
+imageIdBox.Parent = imageIdFrame
+
+local loadButton = Instance.new("TextButton")
+loadButton.Text = "加载图片"
+loadButton.Size = UDim2.new(0.6, 0, 0, 35)
+loadButton.Position = UDim2.new(0.2, 0, 0.7, -17)
+loadButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+loadButton.Font = Enum.Font.GothamBold
+loadButton.TextColor3 = Color3.new(1, 1, 1)
+loadButton.TextSize = 16
+loadButton.Parent = imageIdFrame
+
+-- ===== 固定图片模式开关 =====
+local fixedImageToggle = Instance.new("TextButton")
+fixedImageToggle.Text = " 固定图片"
+fixedImageToggle.Size = UDim2.new(0, 100, 0, 25)
+fixedImageToggle.Position = UDim2.new(0.5, -50, 0.9, -30)
+fixedImageToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 120)
+fixedImageToggle.Font = Enum.Font.GothamBold
+fixedImageToggle.TextColor3 = Color3.new(1, 1, 1)
+fixedImageToggle.TextSize = 14
+fixedImageToggle.Visible = false
+fixedImageToggle.Parent = mainFrame
+
+-- ===== 图片显示区域 =====
+local imageContainer = Instance.new("Frame")
+imageContainer.Size = UDim2.new(0, 280, 0, 280)
+imageContainer.Position = UDim2.new(0.5, -140, 0.5, -140)
+imageContainer.BackgroundTransparency = 1
+imageContainer.Visible = false
+imageContainer.Parent = mainFrame
+
+local image = Instance.new("ImageLabel")
+image.Name = "DraggableImage"
+image.Size = UDim2.new(1, 0, 1, 0)
+image.BackgroundTransparency = 1
+image.ImageTransparency = 0.5
+image.Parent = imageContainer
+
+-- ===== 控制按钮面板 =====
+local controlFrame = Instance.new("Frame")
+controlFrame.Size = UDim2.new(0, 280, 0, 50)
+controlFrame.Position = UDim2.new(0.5, -140, 0.8, -25)
+controlFrame.BackgroundTransparency = 1
+controlFrame.Visible = false
+controlFrame.Parent = mainFrame
+
+-- 重新输入按钮
+local reinputButton = Instance.new("TextButton")
+reinputButton.Text = " 重新输入"
+reinputButton.Size = UDim2.new(0, 120, 0, 35)
+reinputButton.Position = UDim2.new(0, 0, 0, 7)
+reinputButton.BackgroundColor3 = Color3.fromRGB(80, 160, 220)
+reinputButton.Font = Enum.Font.GothamBold
+reinputButton.TextColor3 = Color3.new(1, 1, 1)
+reinputButton.TextSize = 14
+reinputButton.Parent = controlFrame
+
+-- 放大按钮
+local zoomInButton = Instance.new("TextButton")
+zoomInButton.Text = "➕ 放大"
+zoomInButton.Size = UDim2.new(0, 70, 0, 35)
+zoomInButton.Position = UDim2.new(0.4, 0, 0, 7)
+zoomInButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+zoomInButton.Font = Enum.Font.GothamBold
+zoomInButton.TextColor3 = Color3.new(1, 1, 1)
+zoomInButton.TextSize = 14
+zoomInButton.Parent = controlFrame
+
+-- 缩小按钮
+local zoomOutButton = Instance.new("TextButton")
+zoomOutButton.Text = "➖ 缩小"
+zoomOutButton.Size = UDim2.new(0, 70, 0, 35)
+zoomOutButton.Position = UDim2.new(0.6, 0, 0, 7)
+zoomOutButton.BackgroundColor3 = Color3.fromRGB(200, 100, 100)
+zoomOutButton.Font = Enum.Font.GothamBold
+zoomOutButton.TextColor3 = Color3.new(1, 1, 1)
+zoomOutButton.TextSize = 14
+zoomOutButton.Parent = controlFrame
+
+-- ===== 功能逻辑 =====
+local isImageFixed = false -- 图片固定状态
+-- 新增：图片缩放控制（补充原代码缺失的缩放功能）
+local currentScale = 1
+local scaleStep = 0.1
+local minScale = 0.5
+local maxScale = 2
+
+-- 1. 卡密验证（正确卡密：cutiwre2）
+submitButton.MouseButton1Click:Connect(function()
+    if inputBox.Text == "cutiwre2" then
+        keyFrame.Visible = false
+        imageIdFrame.Visible = true
+    else
+        inputBox.Text = ""
+        inputBox.PlaceholderText = "卡密错误！"
+        inputBox.PlaceholderColor3 = Color3.new(1, 0.3, 0.3)
+    end
+end)
+
+-- 2. 加载图片
+loadButton.MouseButton1Click:Connect(function()
+    local imageId = tonumber(imageIdBox.Text)
+    if imageId and imageId > 0 then
+        image.Image = "rbxassetid://" .. imageId
+        imageIdFrame.Visible = false
+        imageContainer.Visible = true
+        controlFrame.Visible = true
+        fixedImageToggle.Visible = true
+        -- 重置图片缩放
+        currentScale = 1
+        image.Size = UDim2.new(currentScale, 0, currentScale, 0)
+    else
+        imageIdBox.Text = ""
+        imageIdBox.PlaceholderText = "请输入有效数字ID！"
+        imageIdBox.PlaceholderColor3 = Color3.new(1, 0.5, 0.5)
+    end
+end)
+
+-- 3. 重新输入ID
+reinputButton.MouseButton1Click:Connect(function()
+    imageContainer.Visible = false
+    controlFrame.Visible = false
+    fixedImageToggle.Visible = false
+    imageIdFrame.Visible = true
+    imageIdBox.Text = ""
+    imageIdBox.PlaceholderText = "输入新图片ID"
+end)
+
+-- 4. 补全：图片固定/取消固定按钮逻辑
+fixedImageToggle.MouseButton1Click:Connect(function()
+    isImageFixed = not isImageFixed
+    if isImageFixed then
+        fixedImageToggle.Text = " 取消固定"
+        fixedImageToggle.BackgroundColor3 = Color3.fromRGB(120, 80, 120)
+    else
+        fixedImageToggle.Text = " 固定图片"
+        fixedImageToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 120)
+    end
+end)
+
+-- 5. 图片放大功能
+zoomInButto
